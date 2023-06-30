@@ -85,24 +85,24 @@ class RHCandidatesController {
   public function export() {
     $filename = 'candidatos_' . date('Y-m-d_H-i-s');
     
-    $data = implode(';', [
-      'Data de Submissão',
-      'Nome Completo',
-      'E-mail',
-      'Telefone',
-      'Vaga Aplicada',
-      'Escolaridade',
-      'Possui Experiencia',
-      'Empresa',
-      'Cargo',
-      'Inicio Experiencia',
-      'Fim Experiencia',
-      'Atual',
-      'Deficiencia',
-      'Cursos Complementares',
-    ]);
+    // $data = implode(';', [
+    //   'Data de Submissao',
+    //   'Nome Completo',
+    //   'E-mail',
+    //   'Telefone',
+    //   'Vaga Aplicada',
+    //   'Escolaridade',
+    //   'Possui Experiencia',
+    //   'Empresa',
+    //   'Cargo',
+    //   'Inicio Experiencia',
+    //   'Fim Experiencia',
+    //   'Atual',
+    //   'Deficiencia',
+    //   'Cursos Complementares',
+    // ]);
 
-    $data .= PHP_EOL;
+    // $data .= PHP_EOL;
 
     $query = [
       'post_type' => 'candidatoscpack',
@@ -117,48 +117,99 @@ class RHCandidatesController {
     // Uma chamada ao banco de dados
     $posts = get_posts($query);
 
+    $chaves = [
+      'Data de Submissao',
+      'Nome Completo',
+      'E-mail',
+      'Telefone',
+      'Vaga Aplicada',
+      'Escolaridade',
+      'Possui Experiencia',
+      'Deficiencia',
+    ];
+
+    $headerExperiencia = [];
+    $arrayExperiencia = [];
+
+    $headerCursos = [];
+
+    $data;
+
     foreach($posts as $post) {
-      $experiencia_candidato = esc_attr(get_post_meta($post->ID, 'experiencia_candidato', true));
-      $cursos_complementares_candidato = esc_attr(get_post_meta($post->ID, 'cursos_complementares_candidato', true));
-      
-      $arrayExperiencia;
+
+      $metaData = get_post_meta($post->ID);
+
+      // echo "<script>console.log('Area: " . $metaData . "' );</script>";
+
+      $data .= implode(';', [
+        esc_attr(get_the_date('m/Y', $post)),
+        esc_attr($metaData['nome_candidato'][0]),
+        esc_attr($metaData['e-mail_candidato'][0]),
+        esc_attr($metaData['telefone_candidato'][0]),
+        esc_attr($metaData['area_candidato'][0]),
+        esc_attr($metaData['escolaridade_candidato'][0]),
+        esc_attr($metaData['possui_experiencia'][0]),
+        esc_attr($metaData['deficiencia_candidato'][0]),
+        "",
+      ]);
+
+      $experiencia_candidato = esc_attr($metaData['experiencia_candidato'][0]);
+      $cursos_complementares_candidato = esc_attr($metaData['cursos_complementares_candidato'][0]);
 
       $cursos = [];
 
-      //Percorre a quantidade de cursos complementares do candidato e adiciona na variavel $cursos
-      for ($j=0; $j <= intval($cursos_complementares_candidato); $j++) { 
-          array_push($cursos, get_post_meta($post->ID, "cursos_complementares_candidato_{$j}_curso_complementare_candidato", true));
+      for ($i=0; $i < intval($experiencia_candidato); $i++) {
+        $atual = esc_attr($metaData["experiencia_candidato_{$i}_atual_experiencia_candidato"][0]) == 0 ? 'não' : 'sim';
+        
+        array_push($headerExperiencia, esc_attr("Experiencia {$i} - Nome da empresa"));
+        // array_push($arrayExperiencia, esc_attr($metaData["experiencia_candidato_{$i}_empresa_experiencia_candidato"][0]));
+        array_push($headerExperiencia, esc_attr("Experiencia {$i} - Cargo na empresa"));
+        // array_push($arrayExperiencia, esc_attr($metaData["experiencia_candidato_{$i}_cargo_experiencia_candidato"][0]));
+        array_push($headerExperiencia, esc_attr("Experiencia {$i} - Inicio da experiencia"));
+        // array_push($arrayExperiencia, esc_attr($metaData["experiencia_candidato_{$i}_inicio_experiencia_candidato"][0]));
+        array_push($headerExperiencia, esc_attr("Experiencia {$i} - Fim da experiencia"));
+        // array_push($arrayExperiencia, esc_attr($metaData["experiencia_candidato_{$i}_fim_experiencia_candidato_copiar"][0]));
+        array_push($headerExperiencia, esc_attr("Experiencia {$i} - Experiencia atual?"));
+        // array_push($arrayExperiencia, esc_attr($atual));
+        $data .= implode(';', [
+            esc_attr($metaData["experiencia_candidato_{$i}_empresa_experiencia_candidato"][0]),
+            esc_attr($metaData["experiencia_candidato_{$i}_cargo_experiencia_candidato"][0]),
+            esc_attr($metaData["experiencia_candidato_{$i}_inicio_experiencia_candidato"][0]),
+            esc_attr($metaData["experiencia_candidato_{$i}_fim_experiencia_candidato_copiar"][0]),
+            esc_attr($atual),
+            "",
+        ]);
+      };
+
+        //Percorre a quantidade de cursos complementares do candidato e adiciona na variavel $cursos
+      for ($j=0; $j <= intval($cursos_complementares_candidato); $j++) {
+        array_push($headerCursos, esc_attr("Curso complementar {$j}"));
+        $data .= implode(';', [
+          esc_attr($metaData["cursos_complementares_candidato_{$j}_curso_complementare_candidato"][0])
+        ]);
       }
 
-      for ($i=0; $i < intval($experiencia_candidato); $i++) {
-        $atual = esc_attr(get_post_meta($post->ID, "experiencia_candidato_{$i}_atual_experiencia_candidato", true)) == 0 ? 'não' : 'sim';
-        
-        $data .= implode(';', [
-            esc_attr(get_the_date('m/Y', $post)),
-            esc_attr(get_post_meta($post->ID, 'nome_candidato', true)),
-            esc_attr(get_post_meta($post->ID, 'e-mail_candidato', true)),
-            esc_attr(get_post_meta($post->ID, 'telefone_candidato', true)),
-            esc_attr(get_post_meta($post->ID, 'area_candidato', true)),
-            esc_attr(get_post_meta($post->ID, 'escolaridade_candidato', true)),
-            esc_attr(get_post_meta($post->ID, 'possui_experiencia', true)),
-            esc_attr(get_post_meta($post->ID, "experiencia_candidato_{$i}_empresa_experiencia_candidato", true)),
-            esc_attr(get_post_meta($post->ID, "experiencia_candidato_{$i}_cargo_experiencia_candidato", true)),
-            esc_attr(get_post_meta($post->ID, "experiencia_candidato_{$i}_inicio_experiencia_candidato", true)),
-            esc_attr(get_post_meta($post->ID, "experiencia_candidato_{$i}_fim_experiencia_candidato_copiar", true)),
-            esc_attr($atual),
-            esc_attr(get_post_meta($post->ID, 'deficiencia_candidato', true)),
-            esc_attr(implode('; ', $cursos)),
-        ]);
-
-        $data .= PHP_EOL;
-      };
+      $data .= PHP_EOL;
     }
+
+    $headerExperiencia = array_unique($headerExperiencia);
+    $headerCursos = array_unique($headerCursos);
+
+    $chaves = array_merge($chaves, $headerExperiencia);
+    $chaves = array_merge($chaves, $headerCursos);
+
+    $header = implode(';', $chaves);
+
+    
+    // Conteúdo completo do CSV
+    $conteudo_csv = $header . "\n" . implode("\n", $data);
+
 
     header('Content-Type: text/csv');
     header("Content-Disposition: attachment; filename=\"{$filename}.csv\"");
         
+    echo $conteudo_csv;
     echo $data;
-
     die();
   }
 
