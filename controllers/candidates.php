@@ -84,25 +84,6 @@ class RHCandidatesController {
   */
   public function export() {
     $filename = 'candidatos_' . date('Y-m-d_H-i-s');
-    
-    // $data = implode(';', [
-    //   'Data de Submissao',
-    //   'Nome Completo',
-    //   'E-mail',
-    //   'Telefone',
-    //   'Vaga Aplicada',
-    //   'Escolaridade',
-    //   'Possui Experiencia',
-    //   'Empresa',
-    //   'Cargo',
-    //   'Inicio Experiencia',
-    //   'Fim Experiencia',
-    //   'Atual',
-    //   'Deficiencia',
-    //   'Cursos Complementares',
-    // ]);
-
-    // $data .= PHP_EOL;
 
     $query = [
       'post_type' => 'candidatoscpack',
@@ -162,15 +143,11 @@ class RHCandidatesController {
         $atual = esc_attr($metaData["experiencia_candidato_{$i}_atual_experiencia_candidato"][0]) == 0 ? 'não' : 'sim';
         
         array_push($headerExperiencia, esc_attr("Experiencia {$i} - Nome da empresa"));
-        // array_push($arrayExperiencia, esc_attr($metaData["experiencia_candidato_{$i}_empresa_experiencia_candidato"][0]));
         array_push($headerExperiencia, esc_attr("Experiencia {$i} - Cargo na empresa"));
-        // array_push($arrayExperiencia, esc_attr($metaData["experiencia_candidato_{$i}_cargo_experiencia_candidato"][0]));
         array_push($headerExperiencia, esc_attr("Experiencia {$i} - Inicio da experiencia"));
-        // array_push($arrayExperiencia, esc_attr($metaData["experiencia_candidato_{$i}_inicio_experiencia_candidato"][0]));
         array_push($headerExperiencia, esc_attr("Experiencia {$i} - Fim da experiencia"));
-        // array_push($arrayExperiencia, esc_attr($metaData["experiencia_candidato_{$i}_fim_experiencia_candidato_copiar"][0]));
         array_push($headerExperiencia, esc_attr("Experiencia {$i} - Experiencia atual?"));
-        // array_push($arrayExperiencia, esc_attr($atual));
+        
         $data .= implode(';', [
             esc_attr($metaData["experiencia_candidato_{$i}_empresa_experiencia_candidato"][0]),
             esc_attr($metaData["experiencia_candidato_{$i}_cargo_experiencia_candidato"][0]),
